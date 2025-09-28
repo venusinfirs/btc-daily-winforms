@@ -3,9 +3,9 @@
     public class PricePoint
     {
         public DateTime Time { get; }
-        public decimal Price { get; }
+        public double Price { get; }
 
-        public PricePoint(DateTime time, decimal price)
+        public PricePoint(DateTime time, double price)
         {
             Time = time;
             Price = price;

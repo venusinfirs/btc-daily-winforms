@@ -3,12 +3,13 @@ using System.Globalization;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Collections.Generic;
+using BtcDaily.Domain.Entities;
 
-namespace BtcDaily
+namespace BtcDaily.App.Services
 {
     public static class ChartFactory
     {
-        public static Chart CreatePriceChart(string chartName, List<(System.DateTime Time, double Price)> prices)
+        public static Chart CreatePriceChart(string chartName, List<PricePoint> prices)
         {
             var chart = new Chart();
             chart.Dock = DockStyle.Fill;
@@ -49,20 +50,6 @@ namespace BtcDaily
             }
 
             chart.Series.Add(series);
-
-            // Tooltip
-           /* chart.GetToolTipText += (s, e) =>
-            {
-                if (e.HitTestResult.ChartElementType == ChartElementType.DataPoint)
-                {
-                    var point = e.HitTestResult.Series.Points[e.HitTestResult.PointIndex];
-                    DateTime time = DateTime.FromOADate(point.XValue);
-                    double price = point.YValues[0];
-                    e.Text = $"Date: {time:dd.MM HH:mm}\nPrice: ${price:N2}";
-                    Debug.WriteLine($"Tooltip: {e.Text}");
-                }
-            };*/
-
             return chart;
         }
     }

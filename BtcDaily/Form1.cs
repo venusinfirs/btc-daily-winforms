@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using BtcDaily.App.Services;
+using BtcDaily.Domain.Entities;
+using BtcDaily.Infrastructure.Repositories;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,6 +15,8 @@ namespace BtcDaily
     public partial class Form1 : Form
     {
         private readonly CryptoPriceFetcher priceFetcher = new CryptoPriceFetcher();
+        private readonly PriceService _priceService;
+
         private Chart? btcChart;
 
         private const string ChartAreaName = "BTC prices for last 24 hours";
@@ -24,20 +29,15 @@ namespace BtcDaily
         {
             InitializeComponent();
 
+            var fetcher = new CoinGeckoPriceFetcher();
+            _priceService = new PriceService(fetcher);
+
             this.Load += Form1_Load;
         }
 
         private async void Form1_Load(object? sender, EventArgs e)
         {
-            var btcPrices = await FetchAndPlotPricesAsync();
-
-            if (btcPrices == "Failed to fetch data.")
-            {
-                return;
-            }
-
-            var formattedPrices = btcPrices.Replace(",", ".");
-            var sortedPrices = ParseAndSortPrices(formattedPrices);
+            var sortedPrices = await _priceService.GetPricesAsync("bitcoin", 1);
 
             if (sortedPrices.Count > 0)
             {
@@ -45,7 +45,7 @@ namespace BtcDaily
             }
         }
 
-        private void CreateAndDisplayChart(List<(DateTime Time, double Price)> sortedPrices)
+        private void CreateAndDisplayChart(List<PricePoint> sortedPrices)
         {
             if (btcChart != null)
             {
@@ -101,66 +101,6 @@ namespace BtcDaily
                     e.Text = string.Empty;
                 }
             };
-        }
-
-       
-
-        public List<(DateTime Time, double Price)> ParseAndSortPrices(string rawData)
-        {
-            var sortedPrices = new List<(DateTime Time, double Price)>();
-
-            string[] lines = rawData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string line in lines)
-            {
-                try
-                {
-                    string[] parts = line.Split(new string[] { " - $" }, StringSplitOptions.RemoveEmptyEntries);
-
-                    if (parts.Length == 2)
-                    {
-                        string dateTimeString = parts[0].Trim();
-                        string priceString = parts[1].Trim();
-
-                        DateTime timePoint = DateTime.ParseExact(dateTimeString,
-                                                      "dd.MM HH:mm", 
-                                                      CultureInfo.InvariantCulture);
-
-
-                        double priceValue = double.Parse(priceString, CultureInfo.InvariantCulture);
-
-                        sortedPrices.Add((Time: timePoint, Price: priceValue));
-                    }
-                }
-                catch (FormatException ex)
-                {
-                    Debug.WriteLine($"Error parsing line: {line}. Error: {ex.Message}");
-                }
-            }
-
-            var orderedList = sortedPrices.OrderBy(item => item.Time).ToList();
-
-            return orderedList;
-        }
-
-        private async Task<string> FetchAndPlotPricesAsync()
-        {
-            string prices = string.Empty;
-
-            try
-            {
-
-                prices = await priceFetcher.GetBtcPricesFor1DayAsync();
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error fetching BTC prices: {ex.Message}");
-                Debug.WriteLine($"Error: {ex.Message}");
-
-                prices = "Failed to fetch data.";
-            }
-            return prices;
         }
     }
 }

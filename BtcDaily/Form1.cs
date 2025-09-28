@@ -12,7 +12,7 @@ namespace BtcDaily
     public partial class Form1 : Form
     {
         private readonly CryptoPriceFetcher priceFetcher = new CryptoPriceFetcher();
-        private readonly Chart btcChart = new Chart();
+        private Chart? btcChart;
 
         private const string ChartAreaName = "BTC prices for last 24 hours";
         private const double BufferPercentage = 0.002; 
@@ -23,8 +23,6 @@ namespace BtcDaily
         public Form1()
         {
             InitializeComponent();
-
-            InitializeChartControl();
 
             this.Load += Form1_Load;
         }
@@ -43,17 +41,28 @@ namespace BtcDaily
 
             if (sortedPrices.Count > 0)
             {
-                PlottChart(sortedPrices);
+                CreateAndDisplayChart(sortedPrices);
             }
         }
 
-        private void InitializeChartControl()
+        private void CreateAndDisplayChart(List<(DateTime Time, double Price)> sortedPrices)
         {
-            btcChart.Location = new System.Drawing.Point(10, 50);
-            btcChart.Size = new System.Drawing.Size(800, 450);
-            btcChart.Dock = DockStyle.Fill;
+            if (btcChart != null)
+            {
+                this.Controls.Remove(btcChart);
+                btcChart.Dispose();
+            }
+
+            btcChart = ChartFactory.CreatePriceChart("BTC prices for last 24 hours", sortedPrices);
 
             this.Controls.Add(btcChart);
+            btcChart.BringToFront();
+            CreateTooltip();
+        }
+
+        private void CreateTooltip() 
+        {
+            if (btcChart == null) return;
 
             btcChart.GetToolTipText += (s, e) =>
             {
@@ -63,7 +72,7 @@ namespace BtcDaily
 
                     if (series != null)
                     {
-                       
+
                         if (e.HitTestResult.PointIndex >= 0 && e.HitTestResult.PointIndex < series.Points.Count)
                         {
                             DataPoint point = series.Points[e.HitTestResult.PointIndex];
@@ -75,7 +84,7 @@ namespace BtcDaily
 
                             Debug.WriteLine($"Tooltip Text Generated: {e.Text}");
                             toolTip1.BackColor = System.Drawing.Color.LightYellow;
-                            toolTip1.Show(e.Text, btcChart, e.X, e.Y - 15); 
+                            toolTip1.Show(e.Text, btcChart, e.X, e.Y - 15);
                         }
                         else
                         {
@@ -94,14 +103,7 @@ namespace BtcDaily
             };
         }
 
-        private async void button1_Click(object sender, EventArgs e)
-        {
-            var btcPrices = await FetchAndPlotPricesAsync();
-            var formattedPrices = btcPrices.Replace(",", ".");
-            var sortedPrices = ParseAndSortPrices(formattedPrices);
-
-            PlottChart(sortedPrices);
-        }
+       
 
         public List<(DateTime Time, double Price)> ParseAndSortPrices(string rawData)
         {
@@ -159,83 +161,6 @@ namespace BtcDaily
                 prices = "Failed to fetch data.";
             }
             return prices;
-        }
-
-        private void PlottChart(List<(DateTime Time, double Price)> sortedPrices)
-        {
-            Chart chartControl = this.btcChart;
-
-            chartControl.Series.Clear();
-            chartControl.ChartAreas.Clear();
-
-            ChartArea chartArea1 = new ChartArea();
-            chartArea1.Name = ChartAreaName;
-
-            chartArea1.AxisX.Interval = double.NaN; 
-            chartArea1.AxisX.IntervalType = DateTimeIntervalType.Auto;
-
-            chartArea1.AxisX.Interval = double.NaN; 
-            chartArea1.AxisX.IntervalType = DateTimeIntervalType.Hours; 
-            chartArea1.AxisX.LabelStyle.Format = "dd/MM\nHH:mm"; 
-            chartArea1.AxisX.LabelStyle.Angle = 0;
-            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.LightGray;
-
-            chartArea1.AxisY.Title = "Price ($)";
-            chartArea1.AxisY.LabelStyle.Format = "N2";
-            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.LightGray;
-
-            var bounds = GetYAxisBounds(sortedPrices);
-
-            chartArea1.AxisY.Minimum = bounds.min;
-            chartArea1.AxisY.Maximum = bounds.max;
-
-            chartControl.ChartAreas.Add(chartArea1);
-
-            Series series1 = CreateChartSeries(sortedPrices);
-
-            series1.ChartArea = ChartAreaName; 
-
-            chartControl.Series.Add(series1);
-        }
-
-        private (double min, double max) GetYAxisBounds(List<(DateTime Time, double Price)> sortedPrices)
-        {
-            double minPrice = sortedPrices.Min(p => p.Price);
-            double maxPrice = sortedPrices.Max(p => p.Price);
-
-            double priceRange = maxPrice - minPrice;
-            double buffer = priceRange * BufferPercentage;
-
-            double axisMin = minPrice - buffer;
-            double axisMax = maxPrice + buffer;
-
-            if (axisMin < 0) axisMin = 0;
-            return (axisMin, axisMax);
-        }
-
-        private Series CreateChartSeries(List<(DateTime Time, double Price)> sortedPrices)
-        {
-            Series series1 = new Series();
-            series1.Name = "Price";
-            series1.ChartType = SeriesChartType.Line;
-
-            series1.XValueType = ChartValueType.DateTime; 
-
-            series1.BorderWidth = 3;
-           
-            var isPriceInDecline = sortedPrices.Last().Price < sortedPrices.First().Price;
-
-            series1.Color = isPriceInDecline ? System.Drawing.Color.Red : System.Drawing.Color.Green;
-
-            series1.MarkerStyle = MarkerStyle.Circle; 
-            series1.MarkerSize = 5;
-
-            foreach (var (Time, Price) in sortedPrices)
-            {
-                series1.Points.AddXY(Time, Price);
-            }
-
-            return series1; 
         }
     }
 }

@@ -11,7 +11,6 @@ namespace BtcDaily
 {
     public partial class Form1 : Form
     {
-        private readonly CryptoPriceFetcher priceFetcher = new CryptoPriceFetcher();
         private readonly PriceService _priceService;
 
         private Chart? btcChart;

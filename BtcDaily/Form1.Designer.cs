@@ -28,7 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             button1 = new Button();
+            toolTip1 = new ToolTip(components);
             SuspendLayout();
             // 
             // button1
@@ -40,6 +42,10 @@
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
+            // 
+            // toolTip1
+            // 
+            toolTip1.Popup += toolTip1_Popup;
             // 
             // Form1
             // 
@@ -55,5 +61,6 @@
         #endregion
 
         private Button button1;
+        private ToolTip toolTip1;
     }
 }

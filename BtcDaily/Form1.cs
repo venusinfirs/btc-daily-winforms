@@ -16,6 +16,8 @@ namespace BtcDaily
         private const string ChartAreaName = "BTC prices for last 24 hours";
         private const double BufferPercentage = 0.002; // 0.2% buffer for Y-axis scaling
 
+        private readonly ToolTip customChartToolTip = new ToolTip(); // <-- New custom ToolTip
+
 
         public Form1()
         {
@@ -27,12 +29,50 @@ namespace BtcDaily
         private void InitializeChartControl()
         {
             // Configure the size and docking of the chart control
-            btcChart.Location = new System.Drawing.Point(10, 50); // Adjust as needed
-            btcChart.Size = new System.Drawing.Size(800, 450);   // Adjust size
-            btcChart.Dock = DockStyle.Fill; // Optional: make it fill the Form
+            btcChart.Location = new System.Drawing.Point(10, 50);
+            btcChart.Size = new System.Drawing.Size(800, 450);
+            btcChart.Dock = DockStyle.Fill;
 
             // Add the control to the Form's collection
             this.Controls.Add(btcChart);
+
+            btcChart.GetToolTipText += (s, e) =>
+            {
+                if (e.HitTestResult.ChartElementType == ChartElementType.DataPoint)
+                {
+                    Series series = e.HitTestResult.Series;
+
+                    if (series != null)
+                    {
+                       
+                        if (e.HitTestResult.PointIndex >= 0 && e.HitTestResult.PointIndex < series.Points.Count)
+                        {
+                            DataPoint point = series.Points[e.HitTestResult.PointIndex];
+
+                            DateTime time = DateTime.FromOADate(point.XValue);
+                            double price = point.YValues[0];
+
+                            e.Text = $"Date: {time.ToString("dd.MM HH:mm", CultureInfo.InvariantCulture)}\nPrice: ${price.ToString("N2", CultureInfo.InvariantCulture)}";
+
+                            Debug.WriteLine($"Tooltip Text Generated: {e.Text}");
+                            toolTip1.BackColor = System.Drawing.Color.LightYellow;
+                            toolTip1.Show(e.Text, btcChart, e.X, e.Y - 15); // Offset Y to avoid cursor overlap
+                        }
+                        else
+                        {
+                            e.Text = string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        e.Text = string.Empty;
+                    }
+                }
+                else
+                {
+                    e.Text = string.Empty;
+                }
+            };
         }
 
         private async void button1_Click(object sender, EventArgs e)
@@ -41,11 +81,11 @@ namespace BtcDaily
             var formattedPrices = btcPrices.Replace(",", ".");
             var sortedPrices = ParseAndSortPrices(formattedPrices);
 
-            foreach (var item in sortedPrices)
+            /*foreach (var item in sortedPrices)
             {
                 Debug.WriteLine($"Final sorted prices: {item.Time} - ${item.Price:F2}");
-            }
-             PlottChart(sortedPrices);
+            }*/
+            PlottChart(sortedPrices);
         }
 
         public List<(DateTime Time, double Price)> ParseAndSortPrices(string rawData)
@@ -83,21 +123,21 @@ namespace BtcDaily
 
             var orderedList = sortedPrices.OrderBy(item => item.Time).ToList();
 
-            foreach (var item in orderedList)
-            {
-                Debug.WriteLine($"Sorted prices: {item.Time:HH:mm} - ${item.Price:F2}");
-            }
+            /* foreach (var item in orderedList)
+             {
+                 Debug.WriteLine($"Sorted prices: {item.Time:HH:mm} - ${item.Price:F2}");
+             }*/
 
             return orderedList;
         }
 
         private async Task<string> FetchAndPlotPricesAsync()
         {
-            string prices = string.Empty; 
+            string prices = string.Empty;
 
             try
             {
-                
+
                 prices = await priceFetcher.GetBtcPricesFor1DayAsync();
 
                 //Debug.WriteLine(prices); 
@@ -133,7 +173,7 @@ namespace BtcDaily
             // while ensuring the labels contain the date.
             chartArea1.AxisX.Interval = double.NaN; // Reset to Auto
             chartArea1.AxisX.IntervalType = DateTimeIntervalType.Auto;
-           
+
             // X-axis settings (time)
             chartArea1.AxisX.Interval = double.NaN; // Let chart auto-select interval
             chartArea1.AxisX.IntervalType = DateTimeIntervalType.Hours; // ✅ FIX 1
@@ -179,7 +219,7 @@ namespace BtcDaily
             return (axisMin, axisMax);
         }
 
-        private Series CreateChartSeries(List<(DateTime Time, double Price)> sortedPrices) 
+        private Series CreateChartSeries(List<(DateTime Time, double Price)> sortedPrices)
         {
             Series series1 = new Series();
             series1.Name = "Price";
@@ -192,12 +232,20 @@ namespace BtcDaily
             series1.MarkerStyle = MarkerStyle.Circle; // Adds a small circle marker to each data point
             series1.MarkerSize = 5;
 
+            //  series1.ToolTip = "Date: #VALX{dd/MM HH:mm}\nPrice: $#VALY{F2}";
+
+
             foreach (var (Time, Price) in sortedPrices)
             {
                 series1.Points.AddXY(Time, Price);
             }
 
             return series1; // Adds the configured series to the chart
+        }
+
+        private void toolTip1_Popup(object sender, PopupEventArgs e)
+        {
+
         }
     }
 }

@@ -16,7 +16,6 @@ namespace BtcDaily.App.Services
             var chart = new Chart();
             chart.Dock = DockStyle.Fill;
 
-            // ChartArea
             var chartArea = new ChartArea { Name = chartName };
             chartArea.AxisX.LabelStyle.Format = "dd/MM\nHH:mm";
             chartArea.AxisX.MajorGrid.LineColor = System.Drawing.Color.LightGray;
@@ -24,7 +23,6 @@ namespace BtcDaily.App.Services
             chartArea.AxisY.LabelStyle.Format = "N2";
             chartArea.AxisY.MajorGrid.LineColor = System.Drawing.Color.LightGray;
 
-            // Calculate Y-axis bounds
             double minPrice = prices.Min(p => p.Price);
             double maxPrice = prices.Max(p => p.Price);
             double maxBuffer = (maxPrice - minPrice) * MaxBufferPercentage;
@@ -34,7 +32,6 @@ namespace BtcDaily.App.Services
 
             chart.ChartAreas.Add(chartArea);
 
-            // Series
             var series = new Series("Price")
             {
                 ChartType = SeriesChartType.Line,

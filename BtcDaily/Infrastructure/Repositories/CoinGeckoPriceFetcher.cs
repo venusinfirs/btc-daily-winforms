@@ -1,7 +1,7 @@
 ﻿using BtcDaily.Domain.Entities;
 using BtcDaily.Domain.Interfaces;
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
+
 
 namespace BtcDaily.Infrastructure.Repositories
 {
@@ -34,7 +34,6 @@ namespace BtcDaily.Infrastructure.Repositories
                     list.Add(new PricePoint(time, price));
                 }
             }
-
             return list;
         }
     }

@@ -10,12 +10,6 @@ namespace BtcDaily
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
-        /// <summary>
-        /// Gets the BTC price history for the past 1 day from CoinGecko API.
-        /// </summary>
-        /// <summary>
-        /// Gets all BTC prices for the past 1 day from CoinGecko API.
-        /// </summary>
         public async Task<string> GetBtcPricesFor1DayAsync()
         {
             string url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1";

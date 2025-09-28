@@ -31,6 +31,9 @@
             components = new System.ComponentModel.Container();
             toolTip1 = new ToolTip(components);
             SuspendLayout();
+            // 
+            // Form1
+            // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
@@ -40,6 +43,7 @@
         }
 
         #endregion
+
         private ToolTip toolTip1;
     }
 }

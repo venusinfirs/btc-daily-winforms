@@ -1,13 +1,10 @@
 ﻿using BtcDaily.App.Services;
 using BtcDaily.Domain.Entities;
 using BtcDaily.Infrastructure.Repositories;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.Security.Policy;
-using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Xml.Linq;
+
 
 
 namespace BtcDaily
@@ -20,14 +17,20 @@ namespace BtcDaily
         private Chart? btcChart;
 
         private const string ChartAreaName = "BTC prices for last 24 hours";
-        private const double BufferPercentage = 0.002; 
+        private const double BufferPercentage = 0.002;
+        private ProgressBar progressBar = new ProgressBar();
 
-        private readonly ToolTip customChartToolTip = new ToolTip(); 
-
+  
 
         public Form1()
         {
             InitializeComponent();
+
+           
+            progressBar.Style = ProgressBarStyle.Marquee;
+            progressBar.MarqueeAnimationSpeed = 30;
+            progressBar.Dock = DockStyle.Bottom;
+            this.Controls.Add(progressBar);
 
             var fetcher = new CoinGeckoPriceFetcher();
             _priceService = new PriceService(fetcher);
@@ -37,7 +40,10 @@ namespace BtcDaily
 
         private async void Form1_Load(object? sender, EventArgs e)
         {
+            progressBar.Visible = true;
+           
             var sortedPrices = await _priceService.GetPricesAsync("bitcoin", 1);
+            progressBar.Visible = false;
 
             if (sortedPrices.Count > 0)
             {
@@ -82,7 +88,6 @@ namespace BtcDaily
 
                             e.Text = $"Date: {time.ToString("dd.MM HH:mm", CultureInfo.InvariantCulture)}\nPrice: ${price.ToString("N2", CultureInfo.InvariantCulture)}";
 
-                            Debug.WriteLine($"Tooltip Text Generated: {e.Text}");
                             toolTip1.BackColor = System.Drawing.Color.LightYellow;
                             toolTip1.Show(e.Text, btcChart, e.X, e.Y - 15);
                         }

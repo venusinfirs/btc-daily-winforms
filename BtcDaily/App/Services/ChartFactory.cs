@@ -9,6 +9,8 @@ namespace BtcDaily.App.Services
 {
     public static class ChartFactory
     {
+        private const double MaxBufferPercentage = 0.1;
+        private const double MinBufferPercentage = 0.05;
         public static Chart CreatePriceChart(string chartName, List<PricePoint> prices)
         {
             var chart = new Chart();
@@ -25,9 +27,10 @@ namespace BtcDaily.App.Services
             // Calculate Y-axis bounds
             double minPrice = prices.Min(p => p.Price);
             double maxPrice = prices.Max(p => p.Price);
-            double buffer = (maxPrice - minPrice) * 0.002;
-            chartArea.AxisY.Minimum = Math.Max(0, minPrice - buffer);
-            chartArea.AxisY.Maximum = maxPrice + buffer;
+            double maxBuffer = (maxPrice - minPrice) * MaxBufferPercentage;
+            double minBuffer = (maxPrice - minPrice) * MinBufferPercentage;
+            chartArea.AxisY.Minimum = Math.Max(0, minPrice - minBuffer);
+            chartArea.AxisY.Maximum = maxPrice + maxBuffer;
 
             chart.ChartAreas.Add(chartArea);
 

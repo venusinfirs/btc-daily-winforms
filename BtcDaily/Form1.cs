@@ -18,19 +18,15 @@ namespace BtcDaily
 
         private const string ChartAreaName = "BTC prices for last 24 hours";
         private const double BufferPercentage = 0.002;
-        private ProgressBar progressBar = new ProgressBar();
+        private ProgressBar _progressBar = new();
 
-  
 
         public Form1()
         {
             InitializeComponent();
 
-           
-            progressBar.Style = ProgressBarStyle.Marquee;
-            progressBar.MarqueeAnimationSpeed = 30;
-            progressBar.Dock = DockStyle.Bottom;
-            this.Controls.Add(progressBar);
+
+            CreateProgressBar();
 
             var fetcher = new CoinGeckoPriceFetcher();
             _priceService = new PriceService(fetcher);
@@ -38,12 +34,22 @@ namespace BtcDaily
             this.Load += Form1_Load;
         }
 
+        private void CreateProgressBar()
+        {
+            _progressBar.Style = ProgressBarStyle.Marquee;
+            _progressBar.MarqueeAnimationSpeed = 30;
+            _progressBar.Dock = DockStyle.Bottom;
+            this.Controls.Add(_progressBar);
+        }
+
         private async void Form1_Load(object? sender, EventArgs e)
         {
-            progressBar.Visible = true;
+            this.Text = ChartAreaName;
+            _progressBar.Visible = true;
            
-            var sortedPrices = await _priceService.GetPricesAsync("bitcoin", 1);
-            progressBar.Visible = false;
+            var sortedPrices = await _priceService.GetPricesAsync("bitcoin", 1); //temp solution while other time frames and currencies are not implemented
+           
+            _progressBar.Visible = false;
 
             if (sortedPrices.Count > 0)
             {
@@ -72,7 +78,6 @@ namespace BtcDaily
 
             btcChart.GetToolTipText += (s, e) =>
             {
-                // Only show tooltip for data points
                 if (e.HitTestResult.ChartElementType != ChartElementType.DataPoint)
                 {
                     e.Text = string.Empty;

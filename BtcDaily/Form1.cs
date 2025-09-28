@@ -66,45 +66,42 @@ namespace BtcDaily
             CreateTooltip();
         }
 
-        private void CreateTooltip() 
+        private void CreateTooltip()
         {
             if (btcChart == null) return;
 
             btcChart.GetToolTipText += (s, e) =>
             {
-                if (e.HitTestResult.ChartElementType == ChartElementType.DataPoint)
-                {
-                    Series series = e.HitTestResult.Series;
-
-                    if (series != null)
-                    {
-
-                        if (e.HitTestResult.PointIndex >= 0 && e.HitTestResult.PointIndex < series.Points.Count)
-                        {
-                            DataPoint point = series.Points[e.HitTestResult.PointIndex];
-
-                            DateTime time = DateTime.FromOADate(point.XValue);
-                            double price = point.YValues[0];
-
-                            e.Text = $"Date: {time.ToString("dd.MM HH:mm", CultureInfo.InvariantCulture)}\nPrice: ${price.ToString("N2", CultureInfo.InvariantCulture)}";
-
-                            toolTip1.BackColor = System.Drawing.Color.LightYellow;
-                            toolTip1.Show(e.Text, btcChart, e.X, e.Y - 15);
-                        }
-                        else
-                        {
-                            e.Text = string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        e.Text = string.Empty;
-                    }
-                }
-                else
+                // Only show tooltip for data points
+                if (e.HitTestResult.ChartElementType != ChartElementType.DataPoint)
                 {
                     e.Text = string.Empty;
+                    return;
                 }
+
+                var series = e.HitTestResult.Series;
+                if (series == null)
+                {
+                    e.Text = string.Empty;
+                    return;
+                }
+
+                int index = e.HitTestResult.PointIndex;
+                if (index < 0 || index >= series.Points.Count)
+                {
+                    e.Text = string.Empty;
+                    return;
+                }
+
+                var point = series.Points[index];
+                DateTime time = DateTime.FromOADate(point.XValue);
+                double price = point.YValues[0];
+
+                string tooltipText = $"Date: {time:dd.MM HH:mm}\nPrice: ${price:N2}";
+
+                e.Text = tooltipText;
+                toolTip1.BackColor = System.Drawing.Color.LightYellow;
+                toolTip1.Show(tooltipText, btcChart, e.X, e.Y - 15);
             };
         }
     }

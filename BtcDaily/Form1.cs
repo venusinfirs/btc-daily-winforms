@@ -6,6 +6,7 @@ using System.Security.Policy;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
+
 namespace BtcDaily
 {
     public partial class Form1 : Form
@@ -14,9 +15,9 @@ namespace BtcDaily
         private readonly Chart btcChart = new Chart();
 
         private const string ChartAreaName = "BTC prices for last 24 hours";
-        private const double BufferPercentage = 0.002; // 0.2% buffer for Y-axis scaling
+        private const double BufferPercentage = 0.002; 
 
-        private readonly ToolTip customChartToolTip = new ToolTip(); // <-- New custom ToolTip
+        private readonly ToolTip customChartToolTip = new ToolTip(); 
 
 
         public Form1()
@@ -24,16 +25,34 @@ namespace BtcDaily
             InitializeComponent();
 
             InitializeChartControl();
+
+            this.Load += Form1_Load;
+        }
+
+        private async void Form1_Load(object? sender, EventArgs e)
+        {
+            var btcPrices = await FetchAndPlotPricesAsync();
+
+            if (btcPrices == "Failed to fetch data.")
+            {
+                return;
+            }
+
+            var formattedPrices = btcPrices.Replace(",", ".");
+            var sortedPrices = ParseAndSortPrices(formattedPrices);
+
+            if (sortedPrices.Count > 0)
+            {
+                PlottChart(sortedPrices);
+            }
         }
 
         private void InitializeChartControl()
         {
-            // Configure the size and docking of the chart control
             btcChart.Location = new System.Drawing.Point(10, 50);
             btcChart.Size = new System.Drawing.Size(800, 450);
             btcChart.Dock = DockStyle.Fill;
 
-            // Add the control to the Form's collection
             this.Controls.Add(btcChart);
 
             btcChart.GetToolTipText += (s, e) =>
@@ -56,7 +75,7 @@ namespace BtcDaily
 
                             Debug.WriteLine($"Tooltip Text Generated: {e.Text}");
                             toolTip1.BackColor = System.Drawing.Color.LightYellow;
-                            toolTip1.Show(e.Text, btcChart, e.X, e.Y - 15); // Offset Y to avoid cursor overlap
+                            toolTip1.Show(e.Text, btcChart, e.X, e.Y - 15); 
                         }
                         else
                         {
@@ -81,10 +100,6 @@ namespace BtcDaily
             var formattedPrices = btcPrices.Replace(",", ".");
             var sortedPrices = ParseAndSortPrices(formattedPrices);
 
-            /*foreach (var item in sortedPrices)
-            {
-                Debug.WriteLine($"Final sorted prices: {item.Time} - ${item.Price:F2}");
-            }*/
             PlottChart(sortedPrices);
         }
 
@@ -106,7 +121,7 @@ namespace BtcDaily
                         string priceString = parts[1].Trim();
 
                         DateTime timePoint = DateTime.ParseExact(dateTimeString,
-                                                      "dd.MM HH:mm", // <-- Use dot separator
+                                                      "dd.MM HH:mm", 
                                                       CultureInfo.InvariantCulture);
 
 
@@ -123,11 +138,6 @@ namespace BtcDaily
 
             var orderedList = sortedPrices.OrderBy(item => item.Time).ToList();
 
-            /* foreach (var item in orderedList)
-             {
-                 Debug.WriteLine($"Sorted prices: {item.Time:HH:mm} - ${item.Price:F2}");
-             }*/
-
             return orderedList;
         }
 
@@ -140,7 +150,6 @@ namespace BtcDaily
 
                 prices = await priceFetcher.GetBtcPricesFor1DayAsync();
 
-                //Debug.WriteLine(prices); 
             }
             catch (Exception ex)
             {
@@ -152,36 +161,25 @@ namespace BtcDaily
             return prices;
         }
 
-        // In Form1.cs
-
         private void PlottChart(List<(DateTime Time, double Price)> sortedPrices)
         {
-            // Reference the instantiated chart control
             Chart chartControl = this.btcChart;
 
-            // 1. Clear previous elements (crucial for re-plotting)
             chartControl.Series.Clear();
             chartControl.ChartAreas.Clear();
 
-
-            // 2. Create and configure ChartArea
             ChartArea chartArea1 = new ChartArea();
             chartArea1.Name = ChartAreaName;
 
-            // Set Interval to Auto(or one day) and Type to Auto
-            // This often allows the chart to choose the best interval (e.g., every 4 hours)
-            // while ensuring the labels contain the date.
-            chartArea1.AxisX.Interval = double.NaN; // Reset to Auto
+            chartArea1.AxisX.Interval = double.NaN; 
             chartArea1.AxisX.IntervalType = DateTimeIntervalType.Auto;
 
-            // X-axis settings (time)
-            chartArea1.AxisX.Interval = double.NaN; // Let chart auto-select interval
-            chartArea1.AxisX.IntervalType = DateTimeIntervalType.Hours; // ✅ FIX 1
-            chartArea1.AxisX.LabelStyle.Format = "dd/MM\nHH:mm"; // ✅ FIX 2 (date+time)
+            chartArea1.AxisX.Interval = double.NaN; 
+            chartArea1.AxisX.IntervalType = DateTimeIntervalType.Hours; 
+            chartArea1.AxisX.LabelStyle.Format = "dd/MM\nHH:mm"; 
             chartArea1.AxisX.LabelStyle.Angle = 0;
             chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.LightGray;
 
-            // Set Y-Axis properties for Price data
             chartArea1.AxisY.Title = "Price ($)";
             chartArea1.AxisY.LabelStyle.Format = "N2";
             chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.LightGray;
@@ -191,16 +189,12 @@ namespace BtcDaily
             chartArea1.AxisY.Minimum = bounds.min;
             chartArea1.AxisY.Maximum = bounds.max;
 
-            // Add the ChartArea to the Chart Control
             chartControl.ChartAreas.Add(chartArea1);
 
-            // 3. Create the Series and add data
             Series series1 = CreateChartSeries(sortedPrices);
 
-            // 4. Assign the Series to the ChartArea
-            series1.ChartArea = ChartAreaName; // Uses the name defined above
+            series1.ChartArea = ChartAreaName; 
 
-            // 5. Add the Series to the Chart Control
             chartControl.Series.Add(series1);
         }
 
@@ -225,27 +219,23 @@ namespace BtcDaily
             series1.Name = "Price";
             series1.ChartType = SeriesChartType.Line;
 
-            series1.XValueType = ChartValueType.DateTime; // Tells the chart the X-data is time, not generic numeric
+            series1.XValueType = ChartValueType.DateTime; 
 
             series1.BorderWidth = 3;
-            series1.Color = System.Drawing.Color.Blue;
-            series1.MarkerStyle = MarkerStyle.Circle; // Adds a small circle marker to each data point
+           
+            var isPriceInDecline = sortedPrices.Last().Price < sortedPrices.First().Price;
+
+            series1.Color = isPriceInDecline ? System.Drawing.Color.Red : System.Drawing.Color.Green;
+
+            series1.MarkerStyle = MarkerStyle.Circle; 
             series1.MarkerSize = 5;
-
-            //  series1.ToolTip = "Date: #VALX{dd/MM HH:mm}\nPrice: $#VALY{F2}";
-
 
             foreach (var (Time, Price) in sortedPrices)
             {
                 series1.Points.AddXY(Time, Price);
             }
 
-            return series1; // Adds the configured series to the chart
-        }
-
-        private void toolTip1_Popup(object sender, PopupEventArgs e)
-        {
-
+            return series1; 
         }
     }
 }

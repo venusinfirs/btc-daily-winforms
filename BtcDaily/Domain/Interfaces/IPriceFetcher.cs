@@ -4,6 +4,6 @@ namespace BtcDaily.Domain.Interfaces
 {
     public interface IPriceFetcher
     {
-        Task<List<PricePoint>> GetPricesForPeriodAsync(string currency, int days);
+        Task<List<PricePoint>> GetPricesForPeriodAsync(Currency currency, TimeRange range);
     }
 }

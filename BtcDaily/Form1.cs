@@ -16,7 +16,7 @@ namespace BtcDaily
         private Chart? btcChart;
 
         private const string ChartAreaName = "BTC prices for last 24 hours";
-        private const double BufferPercentage = 0.002;
+
         private ProgressBar _progressBar = new();
 
 
@@ -45,9 +45,9 @@ namespace BtcDaily
         {
             this.Text = ChartAreaName;
             _progressBar.Visible = true;
-           
-            var sortedPrices = await _priceService.GetPricesAsync("bitcoin", 1); //temp solution while other time frames and currencies are not implemented
-           
+
+            var sortedPrices = await _priceService.GetPricesAsync(new Currency {Id = "bitcoin" }, TimeRange.OneDay); //temp solution while other time frames and currencies are not implemented
+
             _progressBar.Visible = false;
 
             if (sortedPrices.Count > 0)
@@ -107,6 +107,11 @@ namespace BtcDaily
                 toolTip1.BackColor = System.Drawing.Color.LightYellow;
                 toolTip1.Show(tooltipText, btcChart, e.X, e.Y - 15);
             };
+        }
+
+        private void Form1_Load_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

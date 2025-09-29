@@ -12,9 +12,9 @@ namespace BtcDaily.App.Services
             _priceFetcher = priceFetcher;
         }
 
-        public async Task<List<PricePoint>> GetPricesAsync(string currency, int days)
+        public async Task<List<PricePoint>> GetPricesAsync(Currency currency, TimeRange range)
         {
-            var prices = await _priceFetcher.GetPricesForPeriodAsync(currency, days);
+            var prices = await _priceFetcher.GetPricesForPeriodAsync(currency, range);
 
             return prices.OrderBy(p => p.Time).ToList();
         }

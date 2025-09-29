@@ -1,6 +1,7 @@
 ﻿using BtcDaily.Domain.Entities;
 using BtcDaily.Domain.Interfaces;
 using Newtonsoft.Json.Linq;
+using System;
 
 
 namespace BtcDaily.Infrastructure.Repositories
@@ -9,9 +10,17 @@ namespace BtcDaily.Infrastructure.Repositories
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
-        public async Task<List<PricePoint>> GetPricesForPeriodAsync(string currency, int days)
+        public async Task<List<PricePoint>> GetPricesForPeriodAsync(Currency currency, TimeRange range)
         {
-            string url = $"https://api.coingecko.com/api/v3/coins/{currency}/market_chart?vs_currency=usd&days={days}";
+            string daysParam = range switch
+            {
+                TimeRange.OneDay => "1",
+                TimeRange.FiveDays => "5",
+                TimeRange.OneMonth => "30",
+                _ => "1"
+            };
+
+            string url = $"https://api.coingecko.com/api/v3/coins/{currency.Id}/market_chart?vs_currency=usd&days={daysParam}";
 
             HttpResponseMessage response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();

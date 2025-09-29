@@ -24,7 +24,7 @@ Expand the available timeframes (e.g., 7 days, 3 months, 1 year) by utilizing th
 Integration of alternative price providers beyond the current CoinGeckoPriceFetcher. This will involve adding new implementations of the IPriceFetcher interface.
 
 4. Adding Dependency Injection (DI): 
-Migrate the manual service instantiation in the main form (Form1) to use an Inversion of Control (IoC) container. This will simplify service management, enhance testability, and adhere to the Dependency Inversion Principle.
+Migrate the manual service instantiation in the main form (Form1) to use an Inversion of Control (IoC) container.
 
 **Current Technology Stack**
 

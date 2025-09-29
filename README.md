@@ -8,7 +8,7 @@ Bitcoin (BTC) Price Chart: Displays a line chart of BTC's price.
 
 Fixed Time Range: Currently displays price history for the last 24 hours.
 
-External Data Source: Price data is reliably fetched from the CoinGecko API.
+External Data Source: Price data is fetched from the CoinGecko API.
 
 Interactive UI: Includes dynamic chart styling (color coding for gains/losses) and data point tooltips.
 

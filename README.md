@@ -1,6 +1,6 @@
 **BtcDaily: Cryptocurrency Price Viewer**
 
-BtcDaily is a lightweight Windows desktop application built with C# WinForms designed to provide a simple, interactive, line-chart visualization of cryptocurrency price history. The application uses a Layered Architecture to ensure clean separation of concerns, maintainability, and extensibility.
+BtcDaily is a lightweight Windows desktop application built with C# WinForms designed to provide a simple, interactive, line-chart visualization of cryptocurrency price history. The application uses a Layered Architecture.
 
 **Current Features**
 Bitcoin (BTC) Price Chart: Displays a line chart of BTC's price.

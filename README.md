@@ -14,17 +14,19 @@ Interactive UI: Includes dynamic chart styling (color coding for gains/losses) a
 
 **Future Expansion & Development Plans**
 
-1. Core Feature Expansion
-Multiple Currencies: Implement UI controls to allow users to select and display charts for various cryptocurrencies (e.g., Ethereum, Solana) by leveraging the existing Currency entity and PriceService.
+1. Multiple Currencies display:
+Implement UI controls to allow users to select and display charts for various cryptocurrencies (e.g., Ethereum, Solana) by leveraging the existing Currency entity and PriceService.
 
-Flexible Time Ranges: Expand the available timeframes (e.g., 7 days, 3 months, 1 year) by utilizing the TimeRange enum and updating the API fetching logic within the infrastructure layer.
+2. Flexible Time Ranges: 
+Expand the available timeframes (e.g., 7 days, 3 months, 1 year) by utilizing the TimeRange enum and updating the API fetching logic within the infrastructure layer.
 
-2. Architectural Improvements
-Alternative Price Providers: integrate alternative price providers beyond the current CoinGeckoPriceFetcher. This will involve adding new implementations of the IPriceFetcher interface.
+3. Alternative Price Providers:
+Integration of alternative price providers beyond the current CoinGeckoPriceFetcher. This will involve adding new implementations of the IPriceFetcher interface.
 
-Dependency Injection (DI): Migrate the manual service instantiation in the main form (Form1) to use an Inversion of Control (IoC) container. This will simplify service management, enhance testability, and adhere to the Dependency Inversion Principle.
+4. Adding Dependency Injection (DI): 
+Migrate the manual service instantiation in the main form (Form1) to use an Inversion of Control (IoC) container. This will simplify service management, enhance testability, and adhere to the Dependency Inversion Principle.
 
-**Technology Stack**
+**Current Technology Stack**
 
 Platform: C# (.NET)
 
